@@ -1,17 +1,2 @@
-NPP_Radiation_Monitor*.iml
-NPP_Radiation_Monitor.gradle
-NPP_Radiation_Monitor/local.properties
-NPP_Radiation_Monitor/.idea/caches
-NPP_Radiation_Monitor/.idea/libraries
-NPP_Radiation_Monitor/.idea/modules.xml
-NPP_Radiation_Monitor/.idea/workspace.xml
-NPP_Radiation_Monitor/.idea/navEditor.xml
-NPP_Radiation_Monitor/.idea/assetWizardSettings.xml
-NPP_Radiation_Monitor.DS_Store
-NPP_Radiation_Monitor/build
-NPP_Radiation_Monitor/captures
-NPP_Radiation_Monitor.externalNativeBuild
-NPP_Radiation_Monitor.cxx
-NPP_Radiation_Monitorlocal.properties
 tasks_pdf/
 temp_train/
