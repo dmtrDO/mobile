@@ -17,6 +17,10 @@ import androidx.compose.ui.unit.dp
 import com.example.npp_radiation_monitor.data.model.RadiationReading
 import java.util.Locale
 
+/**
+ * Окремий елемент списку історії вимірювань (HistoryItem).
+ * Відображає номер вимірювання, час проведення та показник радіації з кольором статусу.
+ */
 @Composable
 fun HistoryItem(reading: RadiationReading) {
     Card(

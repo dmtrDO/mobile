@@ -22,11 +22,17 @@ import androidx.compose.ui.unit.sp
 import com.example.npp_radiation_monitor.data.model.RadiationReading
 import java.util.Locale
 
+/**
+ * Компонент картки статусу радіаційного фону (StatusCard).
+ * Відображає поточний рівень радіації із анімованим зміненням кольору
+ * та значення залежно від статусу безпеки.
+ */
 @Composable
 fun StatusCard(
     reading: RadiationReading,
     modifier: Modifier = Modifier
 ) {
+    // Анімації значення радіації та кольору картки
     val animatedRadiation by animateFloatAsState(targetValue = reading.value)
     val animatedColor by animateColorAsState(targetValue = reading.status.color)
 
@@ -42,17 +48,20 @@ fun StatusCard(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Текст статусу (Норма, Увага, Небезпека)
             Text(
                 text = "Статус: ${reading.status.title}",
                 color = Color.White,
                 style = MaterialTheme.typography.titleMedium
             )
+            // Анімоване числове значення радіації
             Text(
                 text = String.format(locale = Locale.UK, "%.2f", animatedRadiation),
                 color = Color.White,
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Black
             )
+            // Одиниці вимірювання
             Text(
                 text = "мкЗв/год",
                 color = Color.White,
