@@ -75,7 +75,7 @@ fun MainScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Кнопка переходу до повної форми реєстрації/налаштування станції (Заняття №6)
+        // Кнопка переходу до повної форми реєстрації/налаштування станції
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
