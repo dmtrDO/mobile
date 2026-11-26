@@ -8,8 +8,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.npp_radiation_monitor.data.RadiationManager
 import com.example.npp_radiation_monitor.data.auth.TokenManager
+import com.example.npp_radiation_monitor.data.flow.RadiationFlowSource
 import com.example.npp_radiation_monitor.data.local.AppDatabase
 import com.example.npp_radiation_monitor.data.local.RadiationEntity
+import com.example.npp_radiation_monitor.data.model.EnergyStation
 import com.example.npp_radiation_monitor.data.model.RadiationReading
 import com.example.npp_radiation_monitor.data.model.RadiationStatus
 import com.example.npp_radiation_monitor.data.model.RadiationUiState
@@ -44,9 +46,11 @@ class RadiationViewModel(application: Application) : AndroidViewModel(applicatio
     val allReadingsFromRoom: Flow<List<RadiationEntity>>
 
     private var localObserveJob: Job? = null
+    private var realtimeFlowJob: Job? = null
 
     private val tokenManager = TokenManager(application)
     private val networkChecker = NetworkChecker(application)
+    private val flowSource = RadiationFlowSource()
 
     init {
         val dao = AppDatabase.getDatabase(application).radiationDao()
@@ -56,6 +60,15 @@ class RadiationViewModel(application: Application) : AndroidViewModel(applicatio
         // Початкова перевірка підключення до мережі
         val isConnected = networkChecker.isNetworkAvailable()
 
+        // Завантаження списку енергетичних об'єктів для відображення у LazyColumn
+        val initialStations = listOf(
+            EnergyStation(1, "Хмельницька АЕС (Енергоблок №1)", "Атомна електростанція", "Штатний режим", 0.12f, "м. Нетішин", 50.13, 26.65),
+            EnergyStation(2, "Рівненська АЕС (Пост Моніторингу №2)", "Моніторинговий пост", "Нормальний фон", 0.15f, "м. Вараш", 51.33, 25.90),
+            EnergyStation(3, "Запорізький контрольний пункт", "Контрольний пункт", "Підвищена увага", 0.28f, "м. Енергодар", 47.50, 34.58),
+            EnergyStation(4, "Південно-Українська АЕС (Блок №3)", "Атомна електростанція", "Штатний режим", 0.11f, "м. Південноукраїнськ", 47.81, 31.17),
+            EnergyStation(5, "Чорнобильський автоматичний пост", "Автоматична станція", "Контрольований стан", 0.35f, "Зона відчуження", 51.27, 30.22)
+        )
+
         // Перевірка наявності збереженого токена при запуску
         val savedToken = tokenManager.getToken()
         val savedEmail = tokenManager.getEmail()
@@ -63,6 +76,7 @@ class RadiationViewModel(application: Application) : AndroidViewModel(applicatio
             _uiState.update {
                 it.copy(
                     isNetworkConnected = isConnected,
+                    energyStations = initialStations,
                     authState = AuthState(
                         isAuthenticated = true,
                         token = savedToken,
@@ -71,7 +85,12 @@ class RadiationViewModel(application: Application) : AndroidViewModel(applicatio
                 )
             }
         } else {
-            _uiState.update { it.copy(isNetworkConnected = isConnected) }
+            _uiState.update {
+                it.copy(
+                    isNetworkConnected = isConnected,
+                    energyStations = initialStations
+                )
+            }
         }
 
         // Початкове спостереження за локальною БД Room
@@ -415,6 +434,70 @@ class RadiationViewModel(application: Application) : AndroidViewModel(applicatio
      */
     fun dismissNetworkStatus() {
         _uiState.update { it.copy(networkStatusMessage = null) }
+    }
+
+    /**
+     * Запускає асинхронний потік Flow із використанням операторів filter, map, catch.
+     */
+    fun startRealtimeFlowStream() {
+        if (realtimeFlowJob?.isActive == true) return
+
+        realtimeFlowJob = viewModelScope.launch {
+            _uiState.update { it.copy(isFlowActive = true) }
+            flowSource.getRadiationSensorStream().collect { reading ->
+                if (reading.id == -1) {
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = "Оператор Flow.catch: Перехоплено помилку датчика у потоці!"
+                        )
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            realtimeReading = reading,
+                            flowEmittedCount = it.flowEmittedCount + 1
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Зупиняє асинхронний потік Flow.
+     */
+    fun stopRealtimeFlowStream() {
+        realtimeFlowJob?.cancel()
+        realtimeFlowJob = null
+        _uiState.update { it.copy(isFlowActive = false) }
+    }
+
+    /**
+     * Вибір елемента списку для перегляду детальної інформації.
+     */
+    fun selectDetailReading(reading: RadiationReading?) {
+        _uiState.update { it.copy(selectedDetailReading = reading) }
+    }
+
+    /**
+     * Закриття детального вікна перегляду елемента.
+     */
+    fun dismissDetailView() {
+        _uiState.update { it.copy(selectedDetailReading = null) }
+    }
+
+    /**
+     * Вибір станції на мапі.
+     */
+    fun selectMapStation(station: EnergyStation?) {
+        _uiState.update { it.copy(selectedMapStation = station) }
+    }
+
+    /**
+     * Оновлення поточних координат GPS користувача.
+     */
+    fun updateUserGpsLocation(lat: Double, lng: Double) {
+        _uiState.update { it.copy(userLatitude = lat, userLongitude = lng) }
     }
 
     private fun reapplyFilterAndSort() {

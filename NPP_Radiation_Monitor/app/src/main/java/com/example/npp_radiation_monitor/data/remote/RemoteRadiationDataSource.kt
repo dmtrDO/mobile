@@ -1,11 +1,10 @@
 package com.example.npp_radiation_monitor.data.remote
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.npp_radiation_monitor.data.model.RadiationReading
 import kotlinx.coroutines.delay
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Віддалене джерело даних (Remote Data Source).
@@ -34,7 +33,7 @@ class RemoteRadiationDataSource {
      * Отримує список замірів з віддаленого сервера із симуляцією затримки мережі.
      */
     suspend fun fetchRemoteReadings(): Result<List<RadiationReading>> {
-        delay(800) // Симуляція мережевого запиту (Network latency)
+        delay(800)
 
         return if (isSimulateError) {
             Result.failure(Exception("Помилка підключення до центрального сервера АЕС (HTTP 503)"))
@@ -46,7 +45,6 @@ class RemoteRadiationDataSource {
     /**
      * Надсилає новий замір на віддалений сервер.
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun sendReadingToServer(value: Float): Result<RadiationReading> {
         delay(600)
 
@@ -54,7 +52,7 @@ class RemoteRadiationDataSource {
             return Result.failure(Exception("Не вдалося відправити дані на сервер: відсутній зв'язок"))
         }
 
-        val time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+        val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
         val newReading = RadiationReading(
             id = ++nextRemoteId,
             value = value,

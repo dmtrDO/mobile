@@ -1,10 +1,9 @@
 package com.example.npp_radiation_monitor.data.sensor
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.npp_radiation_monitor.data.model.RadiationReading
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.random.Random
 
 interface RadiationSensor {
@@ -12,10 +11,9 @@ interface RadiationSensor {
 }
 
 class SimulatedRadiationSensor : RadiationSensor {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun getReading(id: Int): RadiationReading {
-        val value = Random.nextFloat() * 1.0f // Значення від 0.00 до 1.00 мкЗв/год
-        val time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+        val value = Random.nextFloat() * 1.0f
+        val time = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
         return RadiationReading(
             id = id,
             value = value,

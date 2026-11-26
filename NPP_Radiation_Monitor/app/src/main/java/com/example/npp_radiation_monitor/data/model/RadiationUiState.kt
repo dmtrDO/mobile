@@ -23,5 +23,13 @@ data class RadiationUiState(
     val authState: AuthState = AuthState(),
     val isNetworkConnected: Boolean = true,
     val isSimulatedOffline: Boolean = false,
-    val networkStatusMessage: String? = null
+    val networkStatusMessage: String? = null,
+    val isFlowActive: Boolean = false,
+    val realtimeReading: RadiationReading? = null,
+    val flowEmittedCount: Int = 0,
+    val energyStations: List<EnergyStation> = emptyList(),
+    val selectedDetailReading: RadiationReading? = null,
+    val userLatitude: Double = 50.4501,
+    val userLongitude: Double = 30.5234,
+    val selectedMapStation: EnergyStation? = null
 )
