@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.sqrt
 
 /**
  * ViewModel для управління станом моніторингу радіації (RadiationViewModel).
@@ -498,6 +499,28 @@ class RadiationViewModel(application: Application) : AndroidViewModel(applicatio
      */
     fun updateUserGpsLocation(lat: Double, lng: Double) {
         _uiState.update { it.copy(userLatitude = lat, userLongitude = lng) }
+    }
+
+    /**
+     * Оновлення показників акселерометра пристрою в реальному часі.
+     */
+    fun updateSensorValues(x: Float, y: Float, z: Float) {
+        val magnitude = sqrt(x * x + y * y + z * z)
+        _uiState.update {
+            it.copy(
+                accelerometerX = x,
+                accelerometerY = y,
+                accelerometerZ = z,
+                accelerometerMagnitude = (magnitude * 100).toInt() / 100f
+            )
+        }
+    }
+
+    /**
+     * Оновлення показника гіроскопа.
+     */
+    fun updateGyroscopeValue(z: Float) {
+        _uiState.update { it.copy(gyroscopeZ = z) }
     }
 
     private fun reapplyFilterAndSort() {
