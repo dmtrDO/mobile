@@ -30,11 +30,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.npp_radiation_monitor.navigation.Screen
-import com.example.npp_radiation_monitor.ui.components.SensorVectorComponent
+import com.example.npp_radiation_monitor.ui.components.ResourceMonitorComponent
 import com.example.npp_radiation_monitor.ui.viewmodel.RadiationViewModel
 
 /**
- * Екран кастомних користувацьких UI-компонентів візуалізації сенсорів пристрою.
+ * Екран моніторингу системних ресурсів пристрою в реальному часі.
  */
 @Composable
 fun HistoryScreen(
@@ -44,7 +44,7 @@ fun HistoryScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Підключення та зчитування даних акселерометра й гіроскопа в реальному часі
+    // Підключення та зчитування даних сенсорів
     DisposableEffect(Unit) {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -110,11 +110,17 @@ fun HistoryScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Кастомний Compose UI-компонент візуалізації векторів акселерометра та гіроскопа на Canvas
-        SensorVectorComponent(
-            accelX = uiState.accelerometerX,
-            accelY = uiState.accelerometerY,
-            gyroZ = uiState.gyroscopeZ
+        // Інтерактивний компонент моніторингу системних ресурсів пристрою (CPU, RAM, батарея) у реальному часі
+        ResourceMonitorComponent(
+            cpuUsagePct = uiState.cpuUsagePercentage,
+            ramUsedMb = uiState.ramUsedMb,
+            ramTotalMb = uiState.ramTotalMb,
+            ramPct = uiState.ramPercentage,
+            batteryPct = uiState.batteryPercentage,
+            isCharging = uiState.isBatteryCharging,
+            onUpdateResources = { cpu, ramUsed, ramTotal, batteryPct, isCharging ->
+                viewModel.updateSystemResources(cpu, ramUsed, ramTotal, batteryPct, isCharging)
+            }
         )
     }
 }

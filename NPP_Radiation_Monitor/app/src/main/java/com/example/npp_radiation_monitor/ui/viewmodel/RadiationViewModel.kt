@@ -523,6 +523,23 @@ class RadiationViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update { it.copy(gyroscopeZ = z) }
     }
 
+    /**
+     * Оновлення поточних ресурсів пристрою у реальному часі.
+     */
+    fun updateSystemResources(cpu: Float, ramUsed: Long, ramTotal: Long, batteryPct: Int, isCharging: Boolean) {
+        val ramPct = if (ramTotal > 0) (ramUsed.toFloat() / ramTotal.toFloat()) * 100f else 0f
+        _uiState.update {
+            it.copy(
+                cpuUsagePercentage = cpu,
+                ramUsedMb = ramUsed,
+                ramTotalMb = ramTotal,
+                ramPercentage = ramPct,
+                batteryPercentage = batteryPct,
+                isBatteryCharging = isCharging
+            )
+        }
+    }
+
     private fun reapplyFilterAndSort() {
         val filtered = repository.filterAndSortReadings(
             readings = _uiState.value.rawReadings,

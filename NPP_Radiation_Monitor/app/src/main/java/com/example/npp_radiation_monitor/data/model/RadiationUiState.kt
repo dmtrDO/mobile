@@ -6,7 +6,7 @@ import com.example.npp_radiation_monitor.data.repository.DataSourceMode
 import com.example.npp_radiation_monitor.data.repository.SortOrder
 
 /**
- * Стан користувацького інтерфейсу (UI State) для екрана моніторингу та сенсорів.
+ * Стан користувацького інтерфейсу (UI State) для екрана моніторингу та ресурсів.
  */
 data class RadiationUiState(
     val filteredReadings: List<RadiationReading> = emptyList(),
@@ -37,5 +37,11 @@ data class RadiationUiState(
     val accelerometerZ: Float = 9.78f,
     val accelerometerMagnitude: Float = 9.81f,
     val gyroscopeZ: Float = 0.0f,
-    val isSensorActive: Boolean = true
+    val isSensorActive: Boolean = true,
+    val cpuUsagePercentage: Float = 38f,
+    val ramUsedMb: Long = 1850,
+    val ramTotalMb: Long = 4096,
+    val ramPercentage: Float = 45f,
+    val batteryPercentage: Int = 85,
+    val isBatteryCharging: Boolean = true
 )
